@@ -92,6 +92,9 @@ func main() {
 	templateFuncs := template.FuncMap{
 		"Title": strings.Title,
 		"Upper": strings.ToUpper,
+		"Increment": func(i int) int {
+			return i + 1
+		},
 	}
 
 	enumTmpl, err := template.New("enum").Funcs(templateFuncs).Parse(string(tmplBytes))
