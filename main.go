@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"flag"
 	"fmt"
 	"go/format"
@@ -10,6 +11,9 @@ import (
 	"strings"
 	"text/template"
 )
+
+//go:embed enum.go.tmpl
+var tmplBytes []byte
 
 type enum struct {
 	Name    string
@@ -78,11 +82,6 @@ func main() {
 		fmt.Println("The number of values must be a valid int64.")
 		flag.Usage()
 		os.Exit(1)
-	}
-
-	tmplBytes, err := os.ReadFile("enum.go.tmpl")
-	if err != nil {
-		log.Fatalf("Unable to read template file enum.go.tmpl with error: %v", err)
 	}
 
 	templateFuncs := template.FuncMap{
