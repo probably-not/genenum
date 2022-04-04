@@ -108,22 +108,22 @@ func main() {
 	buf := new(bytes.Buffer)
 	err = enumTmpl.Execute(buf, data)
 	if err != nil {
-		log.Fatalf("Unable to execute template for generated file %s_enum.gen.go with error: %v", data.Name, err)
+		log.Fatalf("Unable to execute template for generated file %s_gen.go with error: %v", data.Name, err)
 	}
 
-	enumFile, err := os.Create(fmt.Sprintf("./%s_enum.gen.go", strings.ToLower(data.Name)))
+	enumFile, err := os.Create(fmt.Sprintf("./%s_gen.go", strings.ToLower(data.Name)))
 	if err != nil {
-		log.Fatalf("Unable to create generated file %s_enum.gen.go with error: %v", data.Name, err)
+		log.Fatalf("Unable to create generated file %s_gen.go with error: %v", data.Name, err)
 	}
 
 	formatted, err := format.Source(buf.Bytes())
 	if err != nil {
-		log.Fatalf("Unable to format data for generated file %s_enum.gen.go with error: %v", data.Name, err)
+		log.Fatalf("Unable to format data for generated file %s_gen.go with error: %v", data.Name, err)
 	}
 
 	_, err = enumFile.Write(formatted)
 	if err != nil {
-		log.Fatalf("Unable to write data to generated file %s_enum.gen.go with error: %v", data.Name, err)
+		log.Fatalf("Unable to write data to generated file %s_gen.go with error: %v", data.Name, err)
 	}
 
 	log.Println("Finished!")
