@@ -1,0 +1,58 @@
+// CODE GENERATED AUTOMATICALLY WITH github.com/probably-not/genenum/main.go
+
+package {{ .Package }}
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type {{ .Name }} {{ .Type }}
+
+const (
+	_start{{ .Name }} {{ .Name }} = iota // A marker for the start of the constant{{ with .Values }}{{ range . }}
+  {{ $.Name }}_{{ .Name | Upper }}{{ end }}{{ end }}
+	_end{{ .Name }} // A marker for the end of the constant
+)
+
+var {{ .Name }}ToString = [_end{{ .Name }}]string{
+	"unknown",{{ with .Values }}{{ range . }}
+  "{{ .Name }}",{{ end }}{{ end }}
+}
+
+var {{ .Name }}FromString = map[string]{{ .Name }}{ {{ with .Values }}{{ range . }}
+  "{{ .Name }}": {{ $.Name }}_{{ .Name | Upper }},{{ end }}{{ end }}
+}
+
+func (s {{ .Name }}) String() string {
+	if s >= _end{{ .Name }} {
+		return "unknown"
+	}
+	return {{ .Name }}ToString[s]
+}
+
+func (s {{ .Name }}) MarshalText() ([]byte, error) {
+	return []byte(s.String()), nil
+}
+
+func (s *{{ .Name }}) UnmarshalText(text []byte) error {
+	if v, ok := {{ .Name }}FromString[string(text)]; ok {
+		*s = v
+		return nil
+	}
+
+	return fmt.Errorf("unknown {{ .Name }} %s", string(text))
+}
+
+func (s {{ .Name }}) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func (s *{{ .Name }}) UnmarshalJSON(b []byte) error {
+	var str string
+	err := json.Unmarshal(b, &str)
+	if err != nil {
+		return err
+	}
+	return s.UnmarshalText([]byte(str))
+}
