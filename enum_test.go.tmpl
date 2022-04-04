@@ -1,0 +1,157 @@
+// CODE GENERATED AUTOMATICALLY WITH github.com/probably-not/genenum/main.go
+
+package {{ .Package }}
+
+import (
+	"bytes"
+	"encoding/json"
+	"testing"
+)
+
+func TestUnmarshal{{ .Name }}(t *testing.T) {
+	t.Run("Known", func(subT *testing.T) {
+		jsonData := []byte(`"{{ (index .Values 0).Name }}"`)
+		var s {{ .Name }}
+		if err := json.Unmarshal(jsonData, &s); err != nil {
+			subT.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		if s != {{ .Name }}_{{ (index .Values 0).Name | Upper}} {
+			subT.Errorf("Expected {{ .Name }} to be {{ (index .Values 0).Name | Upper}}, got %s", s.String())
+		}
+	})
+
+	t.Run("Unknown", func(subT *testing.T) {
+		jsonData := []byte(`"unknown"`)
+		var s {{ .Name }}
+		err := json.Unmarshal(jsonData, &s)
+		if err == nil {
+			subT.Error("Expected error to occur, got nil")
+		}
+
+		if err.Error() != "unknown {{ .Name }} unknown" {
+			subT.Errorf("Expected error to be unknown {{ .Name }} unknown, got %v", err)
+		}
+	})
+
+	t.Run("Wrong Type", func(subT *testing.T) {
+		jsonData := []byte(`1.0`)
+		var s {{ .Name }}
+		err := json.Unmarshal(jsonData, &s)
+		if err == nil {
+			subT.Error("Expected error to occur, got nil")
+		}
+
+		if err.Error() != "json: cannot unmarshal number into Go value of type string" {
+			subT.Errorf("Expected error to be json: cannot unmarshal number into Go value of type string, got %v", err)
+		}
+	})
+}
+
+func TestMarshalJSON{{ .Name }}(t *testing.T) { {{ with .Values }}{{ range . }}
+	t.Run("{{ .Name | Upper }}", func(subT *testing.T) {
+		s := {{ $.Name }}_{{ .Name | Upper }}
+		b, err := json.Marshal(s)
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`"{{ .Name }}"`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ $.Name }} to equal %s, got %s", expected, b)
+		}
+	})
+  {{ end }}{{ end }}
+	t.Run("Unknown/Start", func(subT *testing.T) {
+		s := {{ .Name }}(0)
+		b, err := json.Marshal(s)
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`"unknown"`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ .Name }} to equal %s, got %s", expected, b)
+		}
+	})
+
+	t.Run("Unknown/End", func(subT *testing.T) {
+		s := {{ .Name }}({{ len .Values | Increment }})
+		b, err := json.Marshal(s)
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`"unknown"`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ .Name }} to equal %s, got %s", expected, b)
+		}
+	})
+
+	t.Run("Unknown/Past End", func(subT *testing.T) {
+		s := {{ .Name }}({{ len .Values | Increment | Increment }})
+		b, err := json.Marshal(s)
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`"unknown"`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ .Name }} to equal %s, got %s", expected, b)
+		}
+	})
+}
+
+func TestMarshalText{{ .Name }}(t *testing.T) { {{ with .Values }}{{ range . }}
+	t.Run("{{ .Name | Upper }}", func(subT *testing.T) {
+		s := {{ $.Name }}_{{ .Name | Upper }}
+		b, err := s.MarshalText()
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`{{ .Name }}`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ $.Name }} to equal %s, got %s", expected, b)
+		}
+	})
+  {{ end }}{{ end }}
+	t.Run("Unknown/Start", func(subT *testing.T) {
+		s := {{ .Name }}(0)
+		b, err := s.MarshalText()
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`unknown`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ .Name }} to equal %s, got %s", expected, b)
+		}
+	})
+
+	t.Run("Unknown/End", func(subT *testing.T) {
+		s := {{ .Name }}({{ len .Values | Increment }})
+		b, err := s.MarshalText()
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`unknown`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ .Name }} to equal %s, got %s", expected, b)
+		}
+	})
+
+	t.Run("Unknown/Past End", func(subT *testing.T) {
+		s := {{ .Name }}({{ len .Values | Increment | Increment }})
+		b, err := s.MarshalText()
+		if err != nil {
+			t.Errorf("Expected error to be <nil>, got %v", err)
+		}
+
+		expected := []byte(`unknown`)
+		if !bytes.Equal(b, expected) {
+			t.Errorf("Expected Marshaled {{ .Name }} to equal %s, got %s", expected, b)
+		}
+	})
+}
