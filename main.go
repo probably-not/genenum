@@ -15,6 +15,9 @@ import (
 //go:embed enum.go.tmpl
 var tmplBytes []byte
 
+//go:embed enum_test.go.tmpl
+var tmplTestBytes []byte
+
 type enum struct {
 	Name    string
 	Package string
@@ -94,6 +97,11 @@ func main() {
 		log.Fatalf("Unable to parse template file enum.go.tmpl with error: %v", err)
 	}
 
+	enumTestTmpl, err := template.New("enum").Funcs(templateFuncs).Parse(string(tmplTestBytes))
+	if err != nil {
+		log.Fatalf("Unable to parse template file enum_test.go.tmpl with error: %v", err)
+	}
+
 	data := enum{
 		Name:    enumName,
 		Package: packageName,
@@ -105,8 +113,8 @@ func main() {
 		data.Values = append(data.Values, value{Name: ev})
 	}
 
-	buf := new(bytes.Buffer)
-	err = enumTmpl.Execute(buf, data)
+	bufTmpl := new(bytes.Buffer)
+	err = enumTmpl.Execute(bufTmpl, data)
 	if err != nil {
 		log.Fatalf("Unable to execute template for generated file %s_gen.go with error: %v", data.Name, err)
 	}
@@ -116,12 +124,33 @@ func main() {
 		log.Fatalf("Unable to create generated file %s_gen.go with error: %v", data.Name, err)
 	}
 
-	formatted, err := format.Source(buf.Bytes())
+	formatted, err := format.Source(bufTmpl.Bytes())
 	if err != nil {
 		log.Fatalf("Unable to format data for generated file %s_gen.go with error: %v", data.Name, err)
 	}
 
 	_, err = enumFile.Write(formatted)
+	if err != nil {
+		log.Fatalf("Unable to write data to generated file %s_gen.go with error: %v", data.Name, err)
+	}
+
+	bufTestTmpl := new(bytes.Buffer)
+	err = enumTestTmpl.Execute(bufTestTmpl, data)
+	if err != nil {
+		log.Fatalf("Unable to execute template for generated file %s_gen.go with error: %v", data.Name, err)
+	}
+
+	enumTestFile, err := os.Create(fmt.Sprintf("./%s_gen_test.go", strings.ToLower(data.Name)))
+	if err != nil {
+		log.Fatalf("Unable to create generated file %s_gen.go with error: %v", data.Name, err)
+	}
+
+	formattedTest, err := format.Source(bufTestTmpl.Bytes())
+	if err != nil {
+		log.Fatalf("Unable to format data for generated file %s_gen.go with error: %v", data.Name, err)
+	}
+
+	_, err = enumTestFile.Write(formattedTest)
 	if err != nil {
 		log.Fatalf("Unable to write data to generated file %s_gen.go with error: %v", data.Name, err)
 	}
