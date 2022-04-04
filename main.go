@@ -34,6 +34,7 @@ var (
 	enumName    string
 	enumValues  enumValuesList
 	showHelp    bool
+	withTests   bool
 )
 
 type enumValuesList []string
@@ -51,6 +52,7 @@ func init() {
 	flag.BoolVar(&showHelp, "help", false, "Show usage information.")
 	flag.StringVar(&enumName, "name", "", "the name of the enum to generate")
 	flag.StringVar(&packageName, "pkg", "", "the package name to generate the file for")
+	flag.BoolVar(&withTests, "tests", true, "Include an auto-generated test for the enum type.")
 }
 
 func main() {
@@ -132,6 +134,10 @@ func main() {
 	_, err = enumFile.Write(formatted)
 	if err != nil {
 		log.Fatalf("Unable to write data to generated file %s_gen.go with error: %v", data.Name, err)
+	}
+
+	if !withTests {
+		return
 	}
 
 	bufTestTmpl := new(bytes.Buffer)
